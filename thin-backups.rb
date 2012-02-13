@@ -64,7 +64,7 @@ if initial_date == nil
 end
 
 if pretend && !quiet
-  puts "#{arg} given - won't actually do anything"
+  puts "--pretend given - won't actually do anything"
 end
 
 
