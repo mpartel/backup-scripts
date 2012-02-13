@@ -75,7 +75,7 @@ def monday_based_weekday(date)
 end
 
 for file in Pathname(dir).children.sort
-  if file.file? && file.basename.to_s =~ file_regex
+  if file.basename.to_s =~ file_regex
     year, month, day = [$1, $2, $3].map(&:to_i)
     date = Date.new(year, month, day)
     age = (initial_date - date).to_i
@@ -92,7 +92,7 @@ for file in Pathname(dir).children.sort
     
     if delete
       puts "Deleting #{file}" unless quiet
-      FileUtils.rm(file) unless pretend
+      FileUtils.rm_rf(file) unless pretend
     else
       puts "Leaving #{file}" unless quiet
     end
