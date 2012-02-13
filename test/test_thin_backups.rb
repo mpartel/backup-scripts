@@ -52,5 +52,7 @@ Dir.mktmpdir do |tmpdir|
         raise "Remained but should have been deleted: #{filename}" if File.exist?(filename)
       end
     end
+    
+    puts "OK"
   end
 end

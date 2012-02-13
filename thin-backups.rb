@@ -16,24 +16,51 @@ default_rules = [
   [30, [1,5]]
 ]
 
-if ARGV.empty?
-  echo "Usage: thin-backups.rb <directory> [rules | '-'] [start-date]"
+usage = <<EOS
+Usage: thin-backups.rb <directory> [rules | '-'] [start-date]
+
+Options:
+  -h, --help                 This.
+  -p, --pretend              Say what would be deleted but don't really delete.
+  -q, --quiet                Print nothing.
+
+EOS
+
+dir = nil
+pretend = false
+quiet = false
+rules = nil
+initial_date = nil
+
+while !ARGV.empty?
+  arg = ARGV.shift
+  if arg =~ /^-h|--help$/
+    puts usage
+    exit
+  elsif arg =~ /^-p|--pretend$/
+    pretend = true
+    puts "#{arg} given - won't actually do anything"
+  elsif arg =~ /^-q|--quiet$/
+    quiet = true
+  elsif dir == nil
+    dir = arg
+  elsif rules == nil
+    if arg != '-' then rules = eval(arg) else rules = default_rules end
+  elsif initial_date == nil
+    initial_date = Date.parse(arg)
+  end
+end
+
+if dir == nil
+  puts usage
   exit 1
 end
 
-dir = ARGV.shift
-
-rules = ARGV.shift
-if rules
-  rules = eval(rules)
-else
+if rules == nil
   rules = default_rules
 end
 
-initial_date = ARGV.shift
-if initial_date
-  initial_date = Date.parse(initial_date)
-else
+if initial_date == nil
   initial_date = Date.today
 end
 
@@ -60,10 +87,10 @@ for file in Pathname(dir).children.sort
     end
     
     if delete
-      puts "Deleting #{file}"
-      FileUtils.rm(file)
+      puts "Deleting #{file}" unless quiet
+      FileUtils.rm(file) unless pretend
     else
-      puts "Leaving #{file}"
+      puts "Leaving #{file}" unless quiet
     end
   end
 end
