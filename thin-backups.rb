@@ -68,7 +68,7 @@ if pretend && !quiet
 end
 
 
-file_regex = /-(\d{4})(\d{2})(\d{2})\.tar\.(?:gz|bz2)$/
+file_regex = /^(?:.*\D)?(\d{4})(\d{2})(\d{2})(?:\D.*)?$/
 
 def monday_based_weekday(date)
   if date.wday == 0 then 7 else date.wday end
