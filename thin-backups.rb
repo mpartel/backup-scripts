@@ -4,7 +4,7 @@
 # removes some backups that are older than the configured time(s).
 
 require 'rubygems'
-require 'active_support/all'
+require 'active_support/core_ext/date/conversions.rb'
 require 'pathname'
 require 'date'
 require 'fileutils'
