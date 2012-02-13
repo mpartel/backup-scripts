@@ -39,7 +39,6 @@ while !ARGV.empty?
     exit
   elsif arg =~ /^-p|--pretend$/
     pretend = true
-    puts "#{arg} given - won't actually do anything"
   elsif arg =~ /^-q|--quiet$/
     quiet = true
   elsif dir == nil
@@ -63,6 +62,11 @@ end
 if initial_date == nil
   initial_date = Date.today
 end
+
+if pretend && !quiet
+  puts "#{arg} given - won't actually do anything"
+end
+
 
 file_regex = /-(\d{4})(\d{2})(\d{2})\.tar\.(?:gz|bz2)$/
 

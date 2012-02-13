@@ -32,6 +32,19 @@ class TestThinBackups < Test::Unit::TestCase
     end
   end
   
+  def test_pretend
+    in_tmpdir do
+      times = some_times
+      make_files(times)
+      
+      rules = "[[3, [1,3,5,7]], [8, []]]"
+      today = Date.new(2010, 3, 10).to_s
+      run_script(rules, today, ['-q', '--pretend'])
+      
+      check_result(times, times)
+    end
+  end
+  
 private
   def in_tmpdir(&block)
     Dir.mktmpdir do |tmpdir|
@@ -64,9 +77,9 @@ private
     times.each do |t|
       filename = "foo-#{t.gsub(' ', '')}.tar.gz"
       if expected_times.include?(t)
-        raise "Deleted but should have remained: #{filename}" unless File.exist?(filename)
+        assert(File.exist?(filename), "Deleted but should have remained: #{filename}")
       else
-        raise "Remained but should have been deleted: #{filename}" if File.exist?(filename)
+        assert(!File.exist?(filename), "Remained but should have been deleted: #{filename}")
       end
     end
   end
