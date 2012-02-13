@@ -7,6 +7,10 @@ require 'date'
 
 class TestThinBackups < Test::Unit::TestCase
   
+  def setup
+    @script = File.expand_path(File.dirname(__FILE__) + "/../thin-backups.rb")
+  end
+  
   def test_basic_functionality
     in_tmpdir do
       times = some_times
@@ -86,11 +90,7 @@ private
   
   def run_script(rules, initial_date, extra_args = ['-q'])
     args = ['.', rules, initial_date] + extra_args
-    system(Shellwords.join([script, *args]))
+    system(Shellwords.join([@script, *args]))
     raise $?.inspect unless $?.success?
-  end
-  
-  def script
-    File.expand_path(File.dirname(__FILE__) + "/../thin-backups.rb")
   end
 end
