@@ -16,7 +16,7 @@ class TestThinBackups < Test::Unit::TestCase
       times = some_times
       make_files(times)
       
-      rules = "[[3, [1,3,5,7]], [8, []]]"
+      rules = ["3:1,3,5,7", "8:"]
       today = Date.new(2010, 3, 10).to_s
       run_script(rules, today)
       
@@ -41,7 +41,7 @@ class TestThinBackups < Test::Unit::TestCase
       times = some_times
       make_files(times)
       
-      rules = "[[3, [1,3,5,7]], [8, []]]"
+      rules = ["3:1,3,5,7", "8:"]
       today = Date.new(2010, 3, 10).to_s
       run_script(rules, today, ['-q', '--pretend'])
       
@@ -89,7 +89,7 @@ private
   end
   
   def run_script(rules, initial_date, extra_args = ['-q'])
-    args = ['.', rules, initial_date] + extra_args
+    args = ['-s', initial_date] + extra_args + ['.'] + rules
     system(Shellwords.join([@script, *args]))
     raise $?.inspect unless $?.success?
   end

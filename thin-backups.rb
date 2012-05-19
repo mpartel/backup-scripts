@@ -1,7 +1,4 @@
 #!/usr/bin/env ruby
-# Usage: thin-backups.rb <directory>
-# Given a backup directory with files like foo-YYYYMMDD.tar.(gz|bz2),
-# removes some backups that are older than the configured time(s).
 
 require 'rubygems'
 require 'active_support/core_ext/date/conversions.rb'
@@ -9,27 +6,51 @@ require 'pathname'
 require 'date'
 require 'fileutils'
 
-# Default configuration: [min age, [weekday numbers to keep]]
-# Second param overrides
-default_rules = [
-  [14, [1,3,5,7]],
-  [30, [1,5]]
-]
+default_rules = ["14:1,3,5,7", "30:1,5"] # also change description below if you change this
 
 usage = <<EOS
-Usage: thin-backups.rb <directory> [rules | '-'] [start-date]
+Usage: thin-backups.rb [options] <directory> [rules]
+
+  Removes old backups from a directory with files or subdirectories whose
+  names contain a date in YYYYMMDD format. For example, a file
+  'foo-20120519.tar.gz' or a directory named just '20120519' are recognized.
+  
+  It can be given rules of the form min_age:weekday_numbers
+  where weekday numbers are separated by commas.
+  Consider the following default rules:
+  
+  #{default_rules.join(' ')}
+  
+  this means that for all backups that are at least 14 days old,
+  we only keep backups from mondays, wednesdays, fridays and sundays,
+  and for all backups at least 30 days old, only keep the ones
+  from mondays and fridays.
 
 Options:
   -h, --help                 This.
   -p, --pretend              Say what would be deleted but don't really delete.
   -q, --quiet                Print nothing.
+  -s, --start-date YYYYMMDD  Only process files older than the given date.
 
 EOS
+
+$rule_regex = /^(\d+):(\d+(?:,\d+)*)?$/
+
+# Parses a rule into [min_age, [weekdays*]]
+def parse_rule(rule_str)
+  if rule_str =~ $rule_regex
+    min_age = $1.to_i
+    weekdays = $2.to_s.split(",").map(&:to_i)
+    [min_age, weekdays]
+  else
+    raise "Could not parse rule: #{rule_str}"
+  end
+end
 
 dir = nil
 pretend = false
 quiet = false
-rules = nil
+rules = []
 initial_date = nil
 
 while !ARGV.empty?
@@ -41,12 +62,12 @@ while !ARGV.empty?
     pretend = true
   elsif arg =~ /^-q|--quiet$/
     quiet = true
+  elsif arg =~ /^-s|--start-date$/
+    initial_date = Date.parse(ARGV.shift)
   elsif dir == nil
     dir = arg
-  elsif rules == nil
-    if arg != '-' then rules = eval(arg) else rules = default_rules end
-  elsif initial_date == nil
-    initial_date = Date.parse(arg)
+  elsif arg =~ $rule_regex
+    rules << parse_rule(arg)
   end
 end
 
@@ -55,8 +76,8 @@ if dir == nil
   exit 1
 end
 
-if rules == nil
-  rules = default_rules
+if rules.empty?
+  rules = default_rules.map {|r| parse_rule(r) }
 end
 
 if initial_date == nil
