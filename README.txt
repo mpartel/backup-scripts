@@ -12,9 +12,12 @@ Run it without arguments for instructions.
 
 Usage:
 
-    sudo make-rssh-jail.sh <jaildir>
+    sudo make-rssh-jail.sh <jaildir> <username>
 
-Deletes `<jaildir>/bin`, `<jaildir>/lib` and `<jaildir>/lib64` then
-copies over `sftp`, `scp` and `rsync` with any libraries they need.
-Also creates a /dev/null as it's needed by `scp` and `sftp`.
+Deletes `bin`, `lib`, `lib64` and `usr` in `<jaildir>`
+copies over `scp`, `sftp-server', `rsync` and `rssh_chroot_helper` with any libraries they need.
+Creates `/etc/passwd` in the chroot containing the entry for `<username>`.
+Also creates a `/dev/null` as it's needed by `scp` and `sftp`.
 Useful for setting up an [rssh](http://www.pizzashack.org/rssh/) jail for serving backups.
+
+This script probably only works on Debian/Ubuntu.

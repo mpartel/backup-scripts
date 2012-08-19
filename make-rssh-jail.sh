@@ -1,11 +1,12 @@
 #!/bin/bash -e
 
-if [ -z "$1" ]; then
-    echo "Usage: update-jail.sh <jaildir>"
+if [ -z "$1" -o -z "$2" ]; then
+    echo "Usage: update-jail.sh <jaildir> <username>"
     exit 1
 fi
 
 DESTDIR="$1"
+USERNAME="$2"
 
 if `echo "$DESTDIR" | egrep -q -x '/*'`; then
     echo "Whoa! I'm not gonna destroy your root directory."
@@ -19,19 +20,16 @@ fi
 
 mkdir -p "$DESTDIR"
 cd "$DESTDIR"
-rm -Rf bin lib lib64
-mkdir bin lib lib64
+rm -Rf bin lib lib64 usr
+mkdir bin lib lib64 usr
 
-add_binary() {
+add_binary_deps() {
     local BIN=$1
     local LIBS
     local LIB
     local VER
     
-    echo `which "$BIN"` "=>" "`pwd`/$BIN"
-    cp -fp `which "$BIN"` ./bin/
-    
-    ldd `which $BIN` | egrep -o '=> (..*) \(0x.*\)' | sed 's/=> //' | sed 's/ (.*)$//' > libs.txt
+    ldd "$BIN" | egrep -o '=> (..*) \(0x.*\)' | sed 's/=> //' | sed 's/ (.*)$//' > libs.txt
     LIBS=`cat libs.txt | sort`
     rm libs.txt
     for LIB in $LIBS; do
@@ -44,12 +42,24 @@ add_binary() {
 }
 
 echo "Copying binaries and their libraries"
-add_binary sftp
-add_binary scp
-add_binary rsync
+
+BINARIES="/usr/bin/scp /usr/bin/rsync /usr/lib/openssh/sftp-server /usr/lib/rssh/rssh_chroot_helper"
+
+for BIN in $BINARIES; do
+    cp -vfp --parents "$BIN" ./
+    add_binary_deps "$BIN"
+done
+
+echo "Making rssh_chroot_helper SUID in the chroot AND the main system"
+chmod +s ./usr/lib/rssh/rssh_chroot_helper
+chmod +s /usr/lib/rssh/rssh_chroot_helper
+
+echo "Making passwd file"
+mkdir -p ./etc
+cat /etc/passwd | grep "$USERNAME" > ./etc/passwd
 
 glob_exists_in() {
-    test -n "$(find "$2" -maxdepth 1 -name "$1" -print -quit)"
+    test -d "$2" && test -n "$(find "$2" -maxdepth 1 -name "$1" -print -quit)"
 }
 
 echo "Copying dynamic linker libs"
