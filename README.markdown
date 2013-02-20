@@ -17,7 +17,7 @@ This two-stage setup has the following benefits.
 
 The production server has a user+group called `backupreader`.
 The backup server shall have passwordless SSH access to this user.
-In the production server's `/etc/sshd_config` I limit this user to
+In the production server's `/etc/ssh/sshd_config` I limit this user to
 SFTP only and chroot it to `/backup/ready` with the following configuration block.
 
     Match User backupreader
