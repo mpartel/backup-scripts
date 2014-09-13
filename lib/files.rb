@@ -26,6 +26,7 @@ module Files
 
   def install_common_file(file_name)
     puts "Installing #{file_name} to #{script_dir}"
+    FileUtils.mkdir_p(script_dir)
     src = project_dir + '/' + file_name
     dest = script_dir + '/' + file_name
     FileUtils.cp(src, dest, :preserve => true)
