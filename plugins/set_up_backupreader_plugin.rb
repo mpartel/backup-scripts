@@ -66,7 +66,10 @@ class SetUpBackupreaderPlugin
         f.puts
       end
       puts
-      puts "Done. You may want to do: service ssh reload"
+      if Prompts.yesno("Shall I reload the SSH daemon?")
+        Commands.sh!('service', 'ssh', 'reload')
+        puts "Done."
+      end
       puts
     else
       puts "#{sshd_file} already set up. Skipping."
