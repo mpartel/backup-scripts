@@ -4,9 +4,9 @@ require 'strings'
 require 'fileutils'
 require 'shellwords'
 
-class CopyFilesPlugin
+class TarPlugin
   def self.title
-    "Set up backup that copies files"
+    "Set up backup that makes a tar archive."
   end
 
   def run

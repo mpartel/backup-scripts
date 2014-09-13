@@ -3,7 +3,7 @@ require 'files'
 
 class PostgresPlugin
   def self.title
-    "Set up PostgreSQL dump"
+    "Set up PostgreSQL dump."
   end
 
   def run
