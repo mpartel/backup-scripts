@@ -1,12 +1,15 @@
-This repo documents my backup strategy and contains a few somewhat reusable scripts.
+This repo documents a simple backup strategy and contains some somewhat reusable scripts.
 
-# My backup strategy #
+These scripts are used on [TMC](https://github.com/testmycode/tmc-server) production
+servers but are generic enough to be usable elsewhere.
 
-I feel this is a reasonably simple and secure strategy for daily full backups.
+# The backup strategy #
+
+This is a reasonably simple and secure strategy for daily full backups.
 It doesn't account for incrementality.
 
-On the production server, I write scripts to create backups of databases and other live things
-into `/backup/staging`. The scripts moves finished backups to `/backup/ready`.
+On the production server, there are scripts to create backups of databases and other live things
+into `/backup/staging`. The scripts move finished backups to `/backup/ready`.
 
 This two-stage setup has the following benefits.
 
@@ -17,7 +20,7 @@ This two-stage setup has the following benefits.
 
 The production server has a user+group called `backupreader`.
 The backup server shall have passwordless SSH access to this user.
-In the production server's `/etc/ssh/sshd_config` I limit this user to
+The production server's `/etc/ssh/sshd_config` limit this user to
 SFTP only and chroot it to `/backup/ready` with the following configuration block.
 
     Match User backupreader
@@ -48,6 +51,11 @@ Now the backup server has a cron'ed script like the following to fetch daily bac
 Security. If the production server is compromised, the attacker can (in theory) compromise previous backups.
 
 # Scripts #
+
+## setup.rb ##
+
+A setup wizard that generates some backup scripts into /backups/scripts and sets up a `backupreader` user.
+It probably only works on Debian-based systems.
 
 ## thin-backups.rb ##
 

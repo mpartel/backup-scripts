@@ -4,6 +4,7 @@ require 'tmpdir'
 require 'shellwords'
 require 'fileutils'
 require 'date'
+require 'test/unit'
 
 class TestThinBackups < Test::Unit::TestCase
   
