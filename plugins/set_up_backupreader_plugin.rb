@@ -34,6 +34,9 @@ class SetUpBackupreaderPlugin
         f.puts "    ForceCommand internal-sftp"
         f.puts
       end
+      puts
+      puts "Done. You may want to do: service ssh reload"
+      puts
     else
       puts "#{sshd_file} already set up. Skipping."
     end
