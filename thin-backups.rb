@@ -14,17 +14,18 @@ Usage: thin-backups.rb [options] <directory> [rules]
   Removes old backups from a directory with files or subdirectories whose
   names contain a date in YYYYMMDD format. For example, a file
   'foo-20120519.tar.gz' or a directory named just '20120519' are recognized.
-  
+
   It can be given rules of the form min_age:weekday_numbers
   where weekday numbers are separated by commas.
   Consider the following default rules:
-  
+
   #{default_rules.join(' ')}
-  
+
   this means that for all backups that are at least 14 days old,
   we only keep backups from mondays, wednesdays, fridays and sundays,
   and for all backups at least 30 days old, only keep the ones
-  from mondays and fridays.
+  from mondays and fridays. We could also add '180:' to delete backups older
+  than 180 days.
 
 Options:
   -h, --help                 This.
@@ -100,7 +101,7 @@ for file in Pathname(dir).children.sort
     year, month, day = [$1, $2, $3].map(&:to_i)
     date = Date.new(year, month, day)
     age = (initial_date - date).to_i
-    
+
     delete = false
     rules.each_index do |i|
       min_age, weekdays = rules[i]
@@ -110,7 +111,7 @@ for file in Pathname(dir).children.sort
         break
       end
     end
-    
+
     if delete
       puts "Deleting #{file}" unless quiet
       FileUtils.rm_rf(file) unless pretend
