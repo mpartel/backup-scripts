@@ -9,6 +9,7 @@ fi
 
 STAGING="/backup/staging/$BACKUP_NAME"
 READY="/backup/ready/$BACKUP_NAME"
+mkdir -p "/backup/ready"
 mkdir -p "$STAGING"
 
 move_staging_to_ready() {
