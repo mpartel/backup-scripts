@@ -18,7 +18,7 @@ class PostgresPlugin
 
   def ask_name
     Prompts.prompt("Please give an identifier for this backup") do |ident|
-      !ident.chars.include?('/')
+      !!(ident =~ /^[a-zA-Z_][a-zA-Z0-9_-]*$/)
     end
   end
 
@@ -32,10 +32,6 @@ class PostgresPlugin
     "/backup/scripts/backup-#{@name}.sh"
   end
 
-  def staging_dir
-    "/backup/staging/#{@name}"
-  end
-
   def write_scripts!
     Files.install_common_files!
 
@@ -45,14 +41,16 @@ class PostgresPlugin
     script << "BACKUP_NAME=#{Shellwords.escape(@name)}"
     script << '. `dirname "$0"`/common.sh'
     script << ""
-    @dbs.each do |db|
-      script << "sudo -u postgres pg_dump #{Shellwords.escape(db)} | " +
-        "gzip > #{Shellwords.escape(staging_dir)}/#{Shellwords.escape(db)}.sql.gz"
-    end
+    script << "rm -f \"$STAGING/SHA1SUMS\""
     script << ""
     @dbs.each do |db|
-      script << "ready #{db}.sql.gz"
+      esc_db = Shellwords.escape(db)
+      script << "sudo -u postgres pg_dump #{esc_db} | gzip " +
+        "| tee \"$STAGING/#{esc_db}.sql.gz\" " +
+        "| sha1sum | sed 's/  -/  #{esc_db}.sql.gz/' >> \"$STAGING/SHA1SUMS\""
     end
+    script << ""
+    script << "move_staging_to_ready"
     script << ""
 
     Files.write_file(script_file, script.join("\n"))

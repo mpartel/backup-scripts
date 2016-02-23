@@ -9,15 +9,15 @@ fi
 
 STAGING="/backup/staging/$BACKUP_NAME"
 READY="/backup/ready/$BACKUP_NAME"
-mkdir -p "$STAGING" "$READY"
+mkdir -p "$STAGING"
 
-ready() {
-  for file in $@; do
-    local FROM="$STAGING/$file"
-    local TO="$READY/$file"
-    echo "Moving $FROM -> $TO"
-    mv -f "$FROM" "$TO"
-    chgrp backupreader "$TO"
-    chmod g+rX "$TO"
-  done
+move_staging_to_ready() {
+  chgrp backupreader "$STAGING"
+  chmod g+rX "$STAGING"
+
+  echo "Moving $STAGING to $READY"
+  [ -d "$READY" ] && mv "$READY" "$READY.old"
+  mv "$STAGING" "$READY"
+  echo "Clearing $READY.old"
+  rm -Rf "$READY.old"
 }
