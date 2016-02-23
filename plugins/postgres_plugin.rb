@@ -45,6 +45,7 @@ class PostgresPlugin
     script << ""
     @dbs.each do |db|
       esc_db = Shellwords.escape(db)
+      script << "echo \"Dumping database:\" #{esc_db}"
       script << "sudo -u postgres pg_dump #{esc_db} | gzip " +
         "| tee \"$STAGING/#{esc_db}.sql.gz\" " +
         "| sha1sum | sed 's/  -/  #{esc_db}.sql.gz/' >> \"$STAGING/SHA1SUMS\""
