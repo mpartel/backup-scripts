@@ -46,6 +46,7 @@ class TarPlugin
       begin
         tarcmd = ['tar']
         tarcmd << '-C' << '/'
+        tarcmd << '--one-file-system'
         tarcmd << '-cpzf' << "$STAGING/#{@name}.tar.gz"
         tarcmd << @srcdir.reverse.chomp('/').reverse
         tarcmd.join(' ')  # note: not Shellwords.join
